@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Threadly by jentfoo</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Threadly</h1>
+        <p>A library of tools to assist with concurrent java development, with a large focus on testability.</p>
+
+        <p class="view"><a href="https://github.com/jentfoo/threadly">View the Project on GitHub <small>jentfoo/threadly</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/jentfoo/threadly/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jentfoo/threadly/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jentfoo/threadly">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>A library of java tools to assist with concurrent development.  There are tools to help with a wide range of development and testing.  This is designed to be a complement to java.util.concurrent and uses java.util.concurrent to help assist in it's implementations where it makes sense.</p>
+
+<p>One of the key gems in this implementation is the thread pool's and thread pool tools which are provided.  The priority thread pool allows for faster throughput with multiple priorites.  Giving an option to provide more throughput and less strict run times on lower priority tasks.  While still allowing high priority tasks which will function like any other thread pool.</p>
+
+<p>The TaskDistributor is an assistant in keeping operations on the same thread as much as possible.  It allows tasks to be scheduled with a key as to which thread they should run on.  Tasks with the same key will never run concurrently, but may NOT always run on the same thread.</p>
+
+<p>The NoThreadScheduler is a scheduler which can be used in a more controlled way.  Helping with testing primarily it allows you to control how the thread pool advances.</p>
+
+<p>The other huge benifit in this project is the ability to write fully concurrent code but be able to simply bring it under a single thread design for unit testing.  I will describe more on this later as it is finished.</p>
+
+<p>The code is private currently until I get an initial draft done and have the kinks worked out enough I feel confident that others can use it.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jentfoo">jentfoo</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
