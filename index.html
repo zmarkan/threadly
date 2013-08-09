@@ -27,13 +27,13 @@
           <li><a href="https://github.com/threadly/threadly/tarball/master">Download source <strong>TAR Ball</strong></a></li>
         </ul> -->
   <ul>
-  <li><a href="javadocs/0.5/index.html">Current stable <strong>Javadocs</strong></a></li>
+  <li><a href="javadocs/0.6/index.html">Current stable <strong>Javadocs</strong></a></li>
   <li><a href="https://github.com/threadly/threadly/wiki">View <strong>Wiki</strong></a></li>
   <li><a href="https://github.com/threadly/threadly">View On <strong>GitHub</strong></a></li>
   </ul>
 
   <p><h3>Laste stable binary: <br>
-  <a href="https://oss.sonatype.org/content/groups/staging/org/threadly/threadly/0.5/threadly-0.5.jar">Threadly-0.5.jar</a></h3></p>
+  <a href="https://oss.sonatype.org/content/groups/staging/org/threadly/threadly/0.6/threadly-0.6.jar">Threadly-0.6.jar</a></h3></p>
 
         <p><a href="https://threadly.ci.cloudbees.com/view/Threadly/job/Threadly-master/"><img src="https://threadly.ci.cloudbees.com/job/Threadly-master/badge/icon"></a></p>
       </header>
@@ -50,6 +50,7 @@
 
   <br>
   <p><h3>News:</h3>
+  <p>* August 9th 2013 - Released version 0.6 of threadly.  More stability improvements as well as additional features around Limiters and task distributors (which allows for execution to be single threaded based on a single key).  This release does include some package restructing which may not be backwards compatible.  The concurrent package was getting too large and needed to be seperated out.</p>
   <p>* July 19th 2013 - Released version 0.5 of threadly.  This release includes some minor new features.  I decided to drop the schema of leap frogging the odd/even version numbers based on features.  This includes some nice new features I wanted to release, but nothing in this release is very risky.  Please check out the change log for more details: <a href="https://github.com/threadly/threadly/wiki/Changelog">https://github.com/threadly/threadly/wiki/Changelog</a>.</p>
   <p>* July 2nd 2013 - Released 0.4 to maven central.  This release was primarily bug fixes, but included some minor (but IMO important) feature improvements as well.  The most notable improvement is the use of sub-pools using the ExecutorLimiter and PrioritySchedulerLimiter.  These improvements are all very low risk, and have already been integrated into my works product.  For more details please look at the <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog on the wiki</a>.</p>
   <p>* May 30th 2013 - Released 0.3 to maven central.  This release dramatically increases the functionality.  Performance improvements for existing implementations, from new structure implementations (like ConcurrentArrayList which can be better than CopyOnWriteArrayList in some situations).  For a complete list of changes please look at the <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog on the wiki</a>.</p>
