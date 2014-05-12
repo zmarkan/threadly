@@ -27,13 +27,13 @@
           <li><a href="https://github.com/threadly/threadly/tarball/master">Download source <strong>TAR Ball</strong></a></li>
         </ul> -->
   <ul>
-  <li><a href="javadocs/1.2.0/index.html">Current stable <strong>Javadocs</strong></a></li>
+  <li><a href="javadocs/1.3.0/index.html">Current stable <strong>Javadocs</strong></a></li>
   <li><a href="https://github.com/threadly/threadly/wiki">View <strong>Wiki</strong></a></li>
   <li><a href="https://github.com/threadly/threadly">View On <strong>GitHub</strong></a></li>
   </ul>
 
   <p><h3>Latest stable binary: <br>
-  <a href="https://oss.sonatype.org/content/groups/staging/org/threadly/threadly/1.2.0/threadly-1.2.0.jar">Threadly-1.2.0.jar</a></h3></p>
+  <a href="https://oss.sonatype.org/content/groups/staging/org/threadly/threadly/1.3.0/threadly-1.3.0.jar">Threadly-1.3.0.jar</a></h3></p>
 
         <p><a href="https://threadly.ci.cloudbees.com/view/Threadly/job/threadly-master/"><img src="https://threadly.ci.cloudbees.com/job/threadly-master/badge/icon"></a></p>
       </header>
@@ -52,6 +52,7 @@
   <p>If you find this library useful, feel free to donate LTC/Litecoin to: LiTeCoinLRQrrP2B6xAq2aZ5WFHpHc28Ry</p>
   
   <p><h3>News:</h3>
+  <p>* May 12th - Released version 1.3.0, which includes minor changes to the threadly project.  These are just a couple small changes that were easy to include in the 1.0.0 series of releases.  This will likely be the last 1.0.0 series of releases before 2.0.0, the only exception would be if any bugs are found.  There are no significant bug fixes or feature improvments in this release, as new features and improvements have been focused on the 2.0.0 release.</p>
   <p>* April 14th - Released version 1.2.0.  This includes some nice performance improvements around the TaskExecutorDistributor and the TaskSchedulerDistributor.  This also includes an expansion around our utilities around Future's/ListenableFuture's.  Otherwise this release is primarily doing some cleanup and starting to think about what we want to acomplish in our 2.0.0 release.  Some things have started migrating to some new api's.  We will probably start publushing a 2.0.0 aritfact in the next couple of weeks.</p>
   <p>* March 19th - Released version 1.1.0, which includes a small expansion of the feature set.  This includes new tools like ListenableFutureResult, and ListenerHelper (which is a great tool for handling callbacks).  It also has some code and performance improvements around the thread pool limiters (aka sub pools).  Please look at the <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog on the wiki</a> for more details.</p>
   <p>* February 10th - Released version 1.0.0 of threadly.  This release is very exciting to me as it indicates a new level for the project.  A new level of stability and maturity, a new level of control and openness.  As in my previous post you will note that we removed and changed a lot more than we originally expected to.  I felt this was important because with the 1.0.0 release a lot of changes are occuring.  A stricter versioning is part of this, allowing people to easily know what level of risk and change is included in every version (as described <a href="https://github.com/threadly/threadly/wiki/Version-Guide">here on the wiki</a>).  We also plan to provide more visibility through pull requests, and filed issues into what exactly has changed (though the change log has always been very complete).  We had lots of things in the 0.9 release we decided to remove for 1.0.0 because we felt that they added a lot of complexity, and code, when their value was minimal at best.  Because it will be harder to remove those things in the future we decided now is the time to do it.  So they have been removed, but can be easily added back if others find any of those features useful (they were removed because no one was using them and we saw minimal reason someone would start using them).  Please look at the <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog on the wiki</a> for a more complete list of what has changed.</p>
