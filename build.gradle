@@ -4,7 +4,7 @@ apply plugin: 'signing'
 apply plugin: 'checkstyle'
 
 group 'org.threadly'
-version = '2.3.0-SNAPSHOT'
+version = '3.0.0-SNAPSHOT'
 
 repositories {
   mavenCentral()
@@ -21,7 +21,7 @@ dependencies {
 }
 
 compileJava {
-  options.compilerArgs << "-Xlint:all" << "-Xlint:-deprecation" << "-Werror"
+  options.compilerArgs << "-Xlint:all" << "-Werror"
 }
 
 compileTestJava {
