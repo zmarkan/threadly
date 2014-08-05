@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.threadly.concurrent.collections.ConcurrentArrayList;
+import org.threadly.util.ArgumentVerifier;
 
 /**
  * <p>A collection of small utilities for handling futures.</p>
@@ -54,11 +55,9 @@ public class FutureUtils {
   public static <T> void addCallback(final ListenableFuture<T> future, 
                                      final FutureCallback<? super T> callback, 
                                      Executor executor) {
-    if (future == null) {
-      throw new IllegalArgumentException("Must provide future for callback to listen on");
-    } else if (callback == null) {
-      throw new IllegalArgumentException("Must provide callback to call into");
-    }
+    ArgumentVerifier.assertNotNull(future, "future");
+    ArgumentVerifier.assertNotNull(callback, "callback");
+    
     future.addListener(new Runnable() {
       @Override
       public void run() {
@@ -148,7 +147,7 @@ public class FutureUtils {
   
   /**
    * This call is similar to makeCompleteFuture in that it will immediately provide a 
-   * future that can not be canceled, and will not be satifised till all provided 
+   * future that can not be canceled, and will not be satisfied till all provided 
    * futures complete.  
    * 
    * This future provides a list of the completed futures as the result.  The order 
@@ -167,7 +166,7 @@ public class FutureUtils {
   
   /**
    * This call is similar to makeCompleteFuture in that it will immediately provide a 
-   * future that can not be canceled, and will not be satifised till all provided 
+   * future that can not be canceled, and will not be satisfied till all provided 
    * futures complete.  
    * 
    * This future provides a list of the futures that completed without throwing 
@@ -187,7 +186,7 @@ public class FutureUtils {
   
   /**
    * This call is similar to makeCompleteFuture in that it will immediately provide a 
-   * future that can not be canceled, and will not be satifised till all provided 
+   * future that can not be canceled, and will not be satisfied till all provided 
    * futures complete.  
    * 
    * This future provides a list of the futures that failed by either throwing an 

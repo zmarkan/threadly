@@ -3,9 +3,6 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'checkstyle'
 
-group 'org.threadly'
-version = '3.0.0-SNAPSHOT'
-
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 

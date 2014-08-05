@@ -5,20 +5,32 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.OutputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.StringTokenizer;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.threadly.concurrent.TestUncaughtExceptionHandler;
 import org.threadly.util.ExceptionUtils.TransformedException;
 
 @SuppressWarnings("javadoc")
 public class ExceptionUtilsTest {
+  @Before
+  @After
+  public void cleanup() {
+    ExceptionUtils.setDefaultExceptionHandler(null);
+    ExceptionUtils.setInheritableExceptionHandler(null);
+    ExceptionUtils.setThreadExceptionHandler(null);
+    Thread.setDefaultUncaughtExceptionHandler(null);
+    Thread.currentThread().setUncaughtExceptionHandler(null);
+  }
+  
   @SuppressWarnings("resource")
   @Test
   public void handleExceptionWithoutUncaughtExceptionHandler() {
     // make sure no uncaughtExceptionHandler is set
     Thread.setDefaultUncaughtExceptionHandler(null);
+    Thread.currentThread().setUncaughtExceptionHandler(null);
     
     PrintStream originalSystemErr = System.err;
     try {
@@ -36,8 +48,171 @@ public class ExceptionUtilsTest {
       ExceptionUtils.handleException(e);
       
       assertTrue(sb.length() > 0);
+      assertTrue(sb.toString().contains(ExceptionUtils.stackToString(e)));
+    } finally {
+      System.setErr(originalSystemErr);
+    }
+  }
+  
+  @SuppressWarnings("resource")
+  @Test
+  public void handleExceptionThrowExceptionTest() {
+    final RuntimeException thrownException = new RuntimeException();
+    // set handler that will throw exception
+    ExceptionUtils.setThreadExceptionHandler(new ExceptionHandlerInterface() {
+      @Override
+      public void handleException(Throwable thrown) {
+        throw thrownException;
+      }
+    });
+    
+    PrintStream originalSystemErr = System.err;
+    try {
+      // set it up so System.err goes to a StringBuffer
+      final StringBuilder sb = new StringBuilder();
+      System.setErr(new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) throws IOException {
+          sb.append((char)b);
+        }
+      }));
       
-      assertTrue(sb.toString().equals(ExceptionUtils.stackToString(e)));
+      // make call
+      Exception e = new Exception();
+      ExceptionUtils.handleException(e);
+      
+      assertTrue(sb.length() > 0);
+      String resultStr = sb.toString();
+      assertTrue(resultStr.contains(ExceptionUtils.stackToString(e)));
+      assertTrue(resultStr.contains(ExceptionUtils.stackToString(thrownException)));
+    } finally {
+      System.setErr(originalSystemErr);
+    }
+  }
+  
+  @SuppressWarnings("resource")
+  @Test
+  public void handleExceptionWithThreadExceptionHandler() {
+    PrintStream originalSystemErr = System.err;
+    try {
+      // set it up so System.err goes to a StringBuffer
+      final StringBuilder sb = new StringBuilder();
+      System.setErr(new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) throws IOException {
+          sb.append((char)b);
+        }
+      }));
+      
+      TestExceptionHandler teh = new TestExceptionHandler();
+      ExceptionUtils.setThreadExceptionHandler(teh);
+      TestExceptionHandler uncalledHandler = new TestExceptionHandler();
+      ExceptionUtils.setInheritableExceptionHandler(uncalledHandler);
+      ExceptionUtils.setDefaultExceptionHandler(uncalledHandler);
+      
+      // make call
+      Exception e = new Exception();
+      ExceptionUtils.handleException(e);
+        
+      assertEquals(0, sb.length()); // should not have gone to std err
+      assertEquals(0, uncalledHandler.getCallCount());
+        
+      assertEquals(1, teh.getCallCount());
+      assertTrue(teh.getLastThrowable() == e);
+    } finally {
+      System.setErr(originalSystemErr);
+    }
+  }
+  
+  @SuppressWarnings("resource")
+  @Test
+  public void handleExceptionWithInheritableThreadExceptionHandler() {
+    PrintStream originalSystemErr = System.err;
+    try {
+      // set it up so System.err goes to a StringBuffer
+      final StringBuilder sb = new StringBuilder();
+      System.setErr(new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) throws IOException {
+          sb.append((char)b);
+        }
+      }));
+      
+      TestExceptionHandler teh = new TestExceptionHandler();
+      ExceptionUtils.setInheritableExceptionHandler(teh);
+      TestExceptionHandler uncalledHandler = new TestExceptionHandler();
+      ExceptionUtils.setDefaultExceptionHandler(uncalledHandler);
+      
+      // make call
+      Exception e = new Exception();
+      ExceptionUtils.handleException(e);
+        
+      assertEquals(0, sb.length()); // should not have gone to std err
+      assertEquals(0, uncalledHandler.getCallCount());
+        
+      assertEquals(1, teh.getCallCount());
+      assertTrue(teh.getLastThrowable() == e);
+    } finally {
+      System.setErr(originalSystemErr);
+    }
+  }
+  
+  @SuppressWarnings("resource")
+  @Test
+  public void handleExceptionWithDefaultThreadExceptionHandler() {
+    PrintStream originalSystemErr = System.err;
+    try {
+      // set it up so System.err goes to a StringBuffer
+      final StringBuilder sb = new StringBuilder();
+      System.setErr(new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) throws IOException {
+          sb.append((char)b);
+        }
+      }));
+      
+      TestExceptionHandler teh = new TestExceptionHandler();
+      ExceptionUtils.setDefaultExceptionHandler(teh);
+      
+      // make call
+      Exception e = new Exception();
+      ExceptionUtils.handleException(e);
+        
+      assertEquals(0, sb.length()); // should not have gone to std err
+        
+      assertEquals(1, teh.getCallCount());
+      assertTrue(teh.getLastThrowable() == e);
+    } finally {
+      System.setErr(originalSystemErr);
+    }
+  }
+  
+  @SuppressWarnings("resource")
+  @Test
+  public void handleExceptionWithDefaultUncaughtExceptionHandler() {
+    PrintStream originalSystemErr = System.err;
+    try {
+      // set it up so System.err goes to a StringBuffer
+      final StringBuilder sb = new StringBuilder();
+      System.setErr(new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) throws IOException {
+          sb.append((char)b);
+        }
+      }));
+      
+      TestUncaughtExceptionHandler ueh = new TestUncaughtExceptionHandler();
+      Thread.setDefaultUncaughtExceptionHandler(ueh);
+      
+      // make call
+      Exception e = new Exception();
+      ExceptionUtils.handleException(e);
+      
+      assertEquals(0, sb.length()); // should not have gone to std err
+      
+      assertEquals(1, ueh.getCallCount());
+      assertTrue(ueh.getCalledWithThread() == Thread.currentThread());
+      assertTrue(ueh.getCalledWithThrowable() == e);
     } finally {
       System.setErr(originalSystemErr);
     }
@@ -57,23 +232,18 @@ public class ExceptionUtilsTest {
         }
       }));
       
-      UncaughtExceptionHandler originalUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
       TestUncaughtExceptionHandler ueh = new TestUncaughtExceptionHandler();
-      Thread.setDefaultUncaughtExceptionHandler(ueh);
+      Thread.currentThread().setUncaughtExceptionHandler(ueh);
       
-      try {
-        // make call
-        Exception e = new Exception();
-        ExceptionUtils.handleException(e);
-        
-        assertEquals(0, sb.length()); // should not have gone to std err
-        
-        assertEquals(1, ueh.getCallCount());
-        assertTrue(ueh.getCalledWithThread() == Thread.currentThread());
-        assertTrue(ueh.getCalledWithThrowable() == e);
-      } finally {
-        Thread.setDefaultUncaughtExceptionHandler(originalUncaughtExceptionHandler);
-      }
+      // make call
+      Exception e = new Exception();
+      ExceptionUtils.handleException(e);
+      
+      assertEquals(0, sb.length()); // should not have gone to std err
+      
+      assertEquals(1, ueh.getCallCount());
+      assertTrue(ueh.getCalledWithThread() == Thread.currentThread());
+      assertTrue(ueh.getCalledWithThrowable() == e);
     } finally {
       System.setErr(originalSystemErr);
     }

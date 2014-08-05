@@ -7,6 +7,7 @@ import org.threadly.concurrent.SimpleSchedulerInterface;
 import org.threadly.concurrent.SubmitterSchedulerInterface;
 import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.future.ListenableFutureTask;
+import org.threadly.util.ArgumentVerifier;
 
 /**
  * <p>This class is designed to limit how much parallel execution happens on a 
@@ -34,7 +35,7 @@ public class SimpleSchedulerLimiter extends ExecutorLimiter
    * Constructs a new limiter that implements the {@link SubmitterSchedulerInterface}.
    * 
    * @param scheduler {@link SimpleSchedulerInterface} implementation to submit task executions to.
-   * @param maxConcurrency maximum qty of runnables to run in parallel
+   * @param maxConcurrency maximum quantity of runnables to run in parallel
    */
   public SimpleSchedulerLimiter(SimpleSchedulerInterface scheduler, 
                                 int maxConcurrency) {
@@ -45,7 +46,7 @@ public class SimpleSchedulerLimiter extends ExecutorLimiter
    * Constructs a new limiter that implements the {@link SubmitterSchedulerInterface}.
    * 
    * @param scheduler {@link SimpleSchedulerInterface} implementation to submit task executions to.
-   * @param maxConcurrency maximum qty of runnables to run in parallel
+   * @param maxConcurrency maximum quantity of runnables to run in parallel
    * @param subPoolName name to describe threads while tasks running in pool (null to not change thread names)
    */
   public SimpleSchedulerLimiter(SimpleSchedulerInterface scheduler, 
@@ -62,9 +63,7 @@ public class SimpleSchedulerLimiter extends ExecutorLimiter
 
   @Override
   public <T> ListenableFuture<T> submitScheduled(Runnable task, T result, long delayInMs) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
     
     ListenableFutureTask<T> ft = new ListenableFutureTask<T>(false, task, result);
     
@@ -75,9 +74,7 @@ public class SimpleSchedulerLimiter extends ExecutorLimiter
 
   @Override
   public <T> ListenableFuture<T> submitScheduled(Callable<T> task, long delayInMs) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
     
     ListenableFutureTask<T> ft = new ListenableFutureTask<T>(false, task);
     
@@ -88,11 +85,8 @@ public class SimpleSchedulerLimiter extends ExecutorLimiter
 
   @Override
   public void schedule(Runnable task, long delayInMs) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
     
     if (delayInMs == 0) {
       execute(task);
@@ -105,13 +99,9 @@ public class SimpleSchedulerLimiter extends ExecutorLimiter
   @Override
   public void scheduleWithFixedDelay(Runnable task, long initialDelay,
                                      long recurringDelay) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    } else if (initialDelay < 0) {
-      throw new IllegalArgumentException("initialDelay must be >= 0");
-    } else if (recurringDelay < 0) {
-      throw new IllegalArgumentException("recurringDelay must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(initialDelay, "initialDelay");
+    ArgumentVerifier.assertNotNegative(recurringDelay, "recurringDelay");
     
     RecurringRunnableWrapper rrw = new RecurringRunnableWrapper(task, recurringDelay);
     

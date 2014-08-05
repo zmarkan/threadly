@@ -6,7 +6,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +19,7 @@ import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.future.ListenableFutureTask;
 import org.threadly.concurrent.future.ListenableRunnableFuture;
 import org.threadly.concurrent.limiter.PrioritySchedulerLimiter;
+import org.threadly.util.ArgumentVerifier;
 import org.threadly.util.Clock;
 import org.threadly.util.ExceptionUtils;
 
@@ -172,21 +172,11 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   public PriorityScheduler(int corePoolSize, int maxPoolSize,
                            long keepAliveTimeInMs, TaskPriority defaultPriority, 
                            long maxWaitForLowPriorityInMs, 
-                           final boolean useDaemonThreads) {
+                           boolean useDaemonThreads) {
     this(corePoolSize, maxPoolSize, keepAliveTimeInMs, 
          defaultPriority, maxWaitForLowPriorityInMs, 
-         new ThreadFactory() {
-           private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
-          
-           @Override
-           public Thread newThread(Runnable runnable) {
-             Thread thread = defaultFactory.newThread(runnable);
-             
-             thread.setDaemon(useDaemonThreads);
-             
-             return thread;
-           }
-         });
+         new ConfigurableThreadFactory(PriorityScheduler.class.getSimpleName() + "-", 
+                                       true, useDaemonThreads, Thread.NORM_PRIORITY, null, null));
   }
 
   /**
@@ -208,9 +198,8 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   public PriorityScheduler(int corePoolSize, int maxPoolSize,
                            long keepAliveTimeInMs, TaskPriority defaultPriority, 
                            long maxWaitForLowPriorityInMs, ThreadFactory threadFactory) {
-    if (corePoolSize < 1) {
-      throw new IllegalArgumentException("corePoolSize must be > 0");
-    } else if (maxPoolSize < corePoolSize) {
+    ArgumentVerifier.assertGreaterThanZero(corePoolSize, "corePoolSize");
+    if (maxPoolSize < corePoolSize) {
       throw new IllegalArgumentException("maxPoolSize must be >= corePoolSize");
     }
     
@@ -222,7 +211,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
       defaultPriority = DEFAULT_PRIORITY;
     }
     if (threadFactory == null) {
-      threadFactory = Executors.defaultThreadFactory();
+      threadFactory = new ConfigurableThreadFactory(PriorityScheduler.class.getSimpleName() + "-", true);
     }
     
     this.clockWrapper = new ClockWrapper();
@@ -308,7 +297,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   }
   
   /**
-   * Getter for the current qty of workers constructed (ether running or idle).
+   * Getter for the current quantity of workers constructed (either running or idle).
    * 
    * @return current worker count
    */
@@ -343,9 +332,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * @param corePoolSize New pool size.  Must be at least one.
    */
   public void setCorePoolSize(int corePoolSize) {
-    if (corePoolSize < 1) {
-      throw new IllegalArgumentException("corePoolSize must be > 0");
-    }
+    ArgumentVerifier.assertGreaterThanZero(corePoolSize, "corePoolSize");
     
     synchronized (poolSizeChangeLock) {
       boolean lookForExpiredWorkers = this.corePoolSize > corePoolSize;
@@ -374,9 +361,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * @param maxPoolSize New max pool size.  Must be at least one.
    */
   public void setMaxPoolSize(int maxPoolSize) {
-    if (maxPoolSize < 1) {
-      throw new IllegalArgumentException("maxPoolSize must be > 0");
-    }
+    ArgumentVerifier.assertGreaterThanZero(maxPoolSize, "maxPoolSize");
     
     synchronized (poolSizeChangeLock) {
       boolean poolSizeIncrease = maxPoolSize > this.maxPoolSize;
@@ -410,12 +395,10 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * previously set keep alive time, this call will then check for expired worker 
    * threads.
    * 
-   * @param keepAliveTimeInMs New keep alive time in milliseconds.  Must be at least zero.
+   * @param keepAliveTimeInMs New keep alive time in milliseconds
    */
   public void setKeepAliveTime(long keepAliveTimeInMs) {
-    if (keepAliveTimeInMs < 0) {
-      throw new IllegalArgumentException("keepAliveTimeInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNegative(keepAliveTimeInMs, "keepAliveTimeInMs");
     
     boolean checkForExpiredWorkers = this.keepAliveTimeInMs > keepAliveTimeInMs;
     
@@ -432,12 +415,10 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * will have no impact for the current low priority task attempting to get 
    * a worker.
    * 
-   * @param maxWaitForLowPriorityInMs new time to wait for a thread in milliseconds.  Must be at least zero.
+   * @param maxWaitForLowPriorityInMs new time to wait for a thread in milliseconds
    */
   public void setMaxWaitForLowPriority(long maxWaitForLowPriorityInMs) {
-    if (maxWaitForLowPriorityInMs < 0) {
-      throw new IllegalArgumentException("maxWaitForLowPriorityInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNegative(maxWaitForLowPriorityInMs, "maxWaitForLowPriorityInMs");
     
     this.maxWaitForLowPriorityInMs = maxWaitForLowPriorityInMs;
   }
@@ -456,7 +437,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * Returns how many tasks are either waiting to be executed, 
    * or are scheduled to be executed at a future point.
    * 
-   * @return qty of tasks waiting execution or scheduled to be executed later
+   * @return quantity of tasks waiting execution or scheduled to be executed later
    */
   public int getScheduledTaskCount() {
     return highPriorityQueue.size() + lowPriorityQueue.size();
@@ -467,7 +448,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * or are scheduled to be executed at a future point for a specific priority.
    * 
    * @param priority priority for tasks to be counted
-   * @return qty of tasks waiting execution or scheduled to be executed later
+   * @return quantity of tasks waiting execution or scheduled to be executed later
    */
   public int getScheduledTaskCount(TaskPriority priority) {
     if (priority == null) {
@@ -485,7 +466,8 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   }
   
   /**
-   * Prestarts all core threads.  This will make new idle workers to accept future tasks.
+   * Ensures all core threads have been started.  This will make new idle workers 
+   * to accept tasks.
    */
   public void prestartAllCoreThreads() {
     synchronized (workersLock) {
@@ -580,7 +562,7 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
    * recurring tasks are present they will also be unable to reschedule.  If shutdown or 
    * shutdownNow has already been called, this will have no effect.
    * 
-   * If you wish to not want to run any queued tasks you should use {#link shutdownNow()).
+   * If you wish to not want to run any queued tasks you should use shutdownNow().
    */
   public void shutdown() {
     if (! shutdownStarted.getAndSet(true)) {
@@ -756,11 +738,8 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   @Override
   public void schedule(Runnable task, long delayInMs, 
                        TaskPriority priority) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide a task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
     if (priority == null) {
       priority = defaultPriority;
     }
@@ -778,11 +757,8 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   public <T> ListenableFuture<T> submitScheduled(Runnable task, T result, 
                                                  long delayInMs, 
                                                  TaskPriority priority) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide a task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
     if (priority == null) {
       priority = defaultPriority;
     }
@@ -796,11 +772,8 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   @Override
   public <T> ListenableFuture<T> submitScheduled(Callable<T> task, long delayInMs,
                                                  TaskPriority priority) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide a task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
     if (priority == null) {
       priority = defaultPriority;
     }
@@ -821,13 +794,9 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   @Override
   public void scheduleWithFixedDelay(Runnable task, long initialDelay,
                                      long recurringDelay, TaskPriority priority) {
-    if (task == null) {
-      throw new IllegalArgumentException("Must provide a task");
-    } else if (initialDelay < 0) {
-      throw new IllegalArgumentException("initialDelay must be >= 0");
-    } else if (recurringDelay < 0) {
-      throw new IllegalArgumentException("recurringDelay must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(initialDelay, "initialDelay");
+    ArgumentVerifier.assertNotNegative(recurringDelay, "recurringDelay");
     if (priority == null) {
       priority = defaultPriority;
     }
@@ -1130,8 +1099,8 @@ public class PriorityScheduler extends AbstractSubmitterScheduler
   }
   
   /**
-   * <p>Runnable which will run on pool threads.  It 
-   * accepts runnables to run, and tracks usage.</p>
+   * <p>Runnable which will run on pool threads.  It accepts runnables to run, 
+   * and tracks usage.</p>
    * 
    * @author jent - Mike Jensen
    * @since 1.0.0

@@ -123,7 +123,7 @@ public class PrioritySchedulerTest extends SchedulerServiceInterfaceTest {
     TaskPriority originalPriority = TaskPriority.Low;
     TaskPriority newPriority = TaskPriority.High;
     PriorityScheduler scheduler = factory.makePriorityScheduler(1, 1, 1000, 
-                                                                        originalPriority, 1000);
+                                                                originalPriority, 1000);
     assertTrue(scheduler.makeWithDefaultPriority(originalPriority) == scheduler);
     PrioritySchedulerInterface newScheduler = scheduler.makeWithDefaultPriority(newPriority);
     try {
@@ -138,7 +138,7 @@ public class PrioritySchedulerTest extends SchedulerServiceInterfaceTest {
     PrioritySchedulerFactory factory = getPrioritySchedulerFactory();
     int corePoolSize = 1;
     PriorityScheduler scheduler = factory.makePriorityScheduler(corePoolSize, 
-                                                                        corePoolSize + 10, 1000);
+                                                                corePoolSize + 10, 1000);
     try {
       assertEquals(corePoolSize, scheduler.getCorePoolSize());
       
@@ -312,7 +312,7 @@ public class PrioritySchedulerTest extends SchedulerServiceInterfaceTest {
     PrioritySchedulerFactory factory = getPrioritySchedulerFactory();
     long lowPriorityWait = 1000;
     PriorityScheduler scheduler = factory.makePriorityScheduler(1, 1, lowPriorityWait / 10, 
-                                                                        TaskPriority.High, lowPriorityWait);
+                                                                TaskPriority.High, lowPriorityWait);
     try {
       assertEquals(lowPriorityWait, scheduler.getMaxWaitForLowPriority());
       
@@ -330,7 +330,7 @@ public class PrioritySchedulerTest extends SchedulerServiceInterfaceTest {
     PrioritySchedulerFactory factory = getPrioritySchedulerFactory();
     long lowPriorityWait = 1000;
     PriorityScheduler scheduler = factory.makePriorityScheduler(1, 1, lowPriorityWait / 10, 
-                                                                        TaskPriority.High, lowPriorityWait);
+                                                                TaskPriority.High, lowPriorityWait);
     try {
       try {
         scheduler.setMaxWaitForLowPriority(-1);
@@ -403,7 +403,7 @@ public class PrioritySchedulerTest extends SchedulerServiceInterfaceTest {
       result.highPriorityQueue.add(result.new OneTimeTaskWrapper(new TestRunnable(), 
                                                                  TaskPriority.High, 0));
       result.highPriorityQueue.add(result.new OneTimeTaskWrapper(new TestRunnable(), 
-                                                                TaskPriority.High, 0));
+                                                                 TaskPriority.High, 0));
       
       assertEquals(2, result.getScheduledTaskCount());
       

@@ -6,6 +6,7 @@ import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.future.ListenableFutureTask;
 import org.threadly.concurrent.future.ListenableRunnableFuture;
 import org.threadly.concurrent.lock.StripedLock;
+import org.threadly.util.ArgumentVerifier;
 
 /**
  * <p>This is a class which is more full featured than {@link TaskExecutorDistributor}, 
@@ -112,7 +113,7 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
    * This constructor does not attempt to have an accurate queue size for the 
    * "getTaskQueueSize" call (thus preferring high performance).
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param scheduler A multi-threaded scheduler to distribute tasks to.  
    *                  Ideally has as many possible threads as keys that 
    *                  will be used in parallel. 
@@ -128,7 +129,7 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
    * tracked for given thread keys.  There is a performance hit associated with this, 
    * so this should only be enabled if "getTaskQueueSize" calls will be used.
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param scheduler A multi-threaded scheduler to distribute tasks to.  
    *                  Ideally has as many possible threads as keys that 
    *                  will be used in parallel. 
@@ -151,7 +152,7 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
    * This constructor does not attempt to have an accurate queue size for the 
    * "getTaskQueueSize" call (thus preferring high performance).
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param scheduler A multi-threaded scheduler to distribute tasks to.  
    *                  Ideally has as many possible threads as keys that 
    *                  will be used in parallel.
@@ -175,7 +176,7 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
    * tracked for given thread keys.  There is a performance hit associated with this, 
    * so this should only be enabled if "getTaskQueueSize" calls will be used.
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param scheduler A multi-threaded scheduler to distribute tasks to.  
    *                  Ideally has as many possible threads as keys that 
    *                  will be used in parallel.
@@ -216,9 +217,7 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
    * @return scheduler which will only execute based on the provided key
    */
   public SubmitterSchedulerInterface getSubmitterSchedulerForKey(Object threadKey) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide thread key");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
     
     return new KeyBasedScheduler(threadKey);
   }
@@ -234,13 +233,9 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
   public void scheduleTask(Object threadKey, 
                            Runnable task, 
                            long delayInMs) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide threadKey");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
     
     if (delayInMs == 0) {
       addTask(threadKey, task, executor);
@@ -264,15 +259,10 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
                                          Runnable task, 
                                          long initialDelay, 
                                          long recurringDelay) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide threadKey");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    } else if (initialDelay < 0) {
-      throw new IllegalArgumentException("initialDelay must be >= 0");
-    } else if (recurringDelay < 0) {
-      throw new IllegalArgumentException("recurringDelay must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(initialDelay, "initialDelay");
+    ArgumentVerifier.assertNotNegative(recurringDelay, "recurringDelay");
     
     scheduler.schedule(new AddTask(threadKey, 
                                    new RecrringTask(threadKey, task, 
@@ -316,13 +306,9 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
                                                      Runnable task, 
                                                      T result, 
                                                      long delayInMs) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide threadKey");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
 
     ListenableRunnableFuture<T> rf = new ListenableFutureTask<T>(false, task, result);
     
@@ -350,13 +336,9 @@ public class TaskSchedulerDistributor extends TaskExecutorDistributor {
   public <T> ListenableFuture<T> submitScheduledTask(Object threadKey, 
                                                      Callable<T> task, 
                                                      long delayInMs) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide threadKey");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    } else if (delayInMs < 0) {
-      throw new IllegalArgumentException("delayInMs must be >= 0");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
+    ArgumentVerifier.assertNotNegative(delayInMs, "delayInMs");
 
     ListenableRunnableFuture<T> rf = new ListenableFutureTask<T>(false, task);
     

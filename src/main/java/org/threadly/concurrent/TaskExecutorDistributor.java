@@ -12,6 +12,7 @@ import org.threadly.concurrent.future.ListenableFuture;
 import org.threadly.concurrent.future.ListenableFutureTask;
 import org.threadly.concurrent.future.ListenableRunnableFuture;
 import org.threadly.concurrent.lock.StripedLock;
+import org.threadly.util.ArgumentVerifier;
 import org.threadly.util.ExceptionUtils;
 
 /**
@@ -27,7 +28,7 @@ import org.threadly.util.ExceptionUtils;
  * 
  * <p>Assuming that the shared memory (any objects, primitives, etc) are only accessed 
  * through the same instance of {@link TaskExecutorDistributor}, and assuming that those 
- * variables are only accessed via the same key.  Then the programer does not need to worry 
+ * variables are only accessed via the same key.  Then the programmer does not need to worry 
  * about synchronization, or volatile.  The {@link TaskExecutorDistributor} will handle the 
  * happens-before relationship.</p>
  * 
@@ -139,7 +140,7 @@ public class TaskExecutorDistributor {
    * This constructor does not attempt to have an accurate queue size for the 
    * "getTaskQueueSize" call (thus preferring high performance).
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param executor A multi-threaded executor to distribute tasks to.  
    *                 Ideally has as many possible threads as keys that 
    *                 will be used in parallel. 
@@ -155,7 +156,7 @@ public class TaskExecutorDistributor {
    * tracked for given thread keys.  There is a performance hit associated with this, 
    * so this should only be enabled if "getTaskQueueSize" calls will be used.
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param executor A multi-threaded executor to distribute tasks to.  
    *                 Ideally has as many possible threads as keys that 
    *                 will be used in parallel.
@@ -178,7 +179,7 @@ public class TaskExecutorDistributor {
    * This constructor does not attempt to have an accurate queue size for the 
    * "getTaskQueueSize" call (thus preferring high performance).
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param executor A multi-threaded executor to distribute tasks to.  
    *                 Ideally has as many possible threads as keys that 
    *                 will be used in parallel.
@@ -202,7 +203,7 @@ public class TaskExecutorDistributor {
    * tracked for given thread keys.  There is a performance hit associated with this, 
    * so this should only be enabled if "getTaskQueueSize" calls will be used.
    * 
-   * @param expectedParallism level of expected qty of threads adding tasks in parallel
+   * @param expectedParallism level of expected quantity of threads adding tasks in parallel
    * @param executor A multi-threaded executor to distribute tasks to.  
    *                 Ideally has as many possible threads as keys that 
    *                 will be used in parallel.
@@ -231,13 +232,9 @@ public class TaskExecutorDistributor {
    */
   protected TaskExecutorDistributor(Executor executor, StripedLock sLock, 
                                     int maxTasksPerCycle, boolean accurateQueueSize) {
-    if (executor == null) {
-      throw new IllegalArgumentException("Must provide executor");
-    } else if (sLock == null) {
-      throw new IllegalArgumentException("striped lock must be provided");
-    } else if (maxTasksPerCycle < 1) {
-      throw new IllegalArgumentException("maxTasksPerCycle must be > 0");
-    }
+    ArgumentVerifier.assertNotNull(executor, "executor");
+    ArgumentVerifier.assertNotNull(sLock, "sLock");
+    ArgumentVerifier.assertGreaterThanZero(maxTasksPerCycle, "maxTasksPerCycle");
     
     this.executor = executor;
     this.sLock = sLock;
@@ -287,9 +284,7 @@ public class TaskExecutorDistributor {
    * @return executor which will only execute based on the provided key
    */
   public SubmitterExecutorInterface getSubmitterForKey(Object threadKey) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide thread key");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
     
     return new KeyBasedSubmitter(threadKey);
   }
@@ -301,7 +296,7 @@ public class TaskExecutorDistributor {
    * 
    * If true was not supplied in the constructor for "accurateQueueSize", this will only 
    * report how many tasks have not been accepted by the worker yet.  The accepting of those 
-   * tasks occur in batches, so this number will varry dramatically (and probably be unusable).
+   * tasks occur in batches, so this number will vary dramatically (and probably be unusable).
    * 
    * So it is highly recommended that if your interested in this functionality you supply a 
    * true into the constructor.
@@ -331,11 +326,8 @@ public class TaskExecutorDistributor {
    * @param task Task to be executed
    */
   public void addTask(Object threadKey, Runnable task) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide thread key");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
     
     addTask(threadKey, task, executor);
   }
@@ -392,11 +384,8 @@ public class TaskExecutorDistributor {
    */
   public <T> ListenableFuture<T> submitTask(Object threadKey, Runnable task, 
                                             T result) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide thread key");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
     
     ListenableRunnableFuture<T> rf = new ListenableFutureTask<T>(false, task, result);
     
@@ -414,11 +403,8 @@ public class TaskExecutorDistributor {
    * @return Future to represent when the execution has occurred and provide the result from the callable
    */
   public <T> ListenableFuture<T> submitTask(Object threadKey, Callable<T> task) {
-    if (threadKey == null) {
-      throw new IllegalArgumentException("Must provide thread key");
-    } else if (task == null) {
-      throw new IllegalArgumentException("Must provide task");
-    }
+    ArgumentVerifier.assertNotNull(threadKey, "threadKey");
+    ArgumentVerifier.assertNotNull(task, "task");
     
     ListenableRunnableFuture<T> rf = new ListenableFutureTask<T>(false, task);
     
@@ -428,7 +414,7 @@ public class TaskExecutorDistributor {
   }
   
   /**
-   * <p>Simple factory interface so we can build the most efficent 
+   * <p>Simple factory interface so we can build the most efficient 
    * TaskQueueWorker implementation for the settings provided at 
    * construction.</p>
    * 

@@ -2,13 +2,15 @@ package org.threadly.concurrent.event;
 
 import java.util.concurrent.Executor;
 
+import org.threadly.util.ArgumentVerifier;
+
 /**
  * <p>This class changes the behavior of how listeners are called from the parent class 
  * {@link RunnableListenerHelper}.  In this implementation when listeners are invoked 
  * with the .callListeners() function, the invocation of all the listeners will occur on the 
  * {@link Executor} that was provided at construction.  If the listener was added without 
  * a provided executor it will then run on the provided executor (in the thread doing the 
- * .callListeners() invocation, aka it will run that listener before executing other 
+ * .callListeners() invocation, AKA it will run that listener before executing other 
  * listeners).  If the listener was added with a provided executor, that listener will still 
  * execute on the provided executor (so not necessarily the executor provided at 
  * construction time).<p>
@@ -46,10 +48,8 @@ public class AsyncCallRunnableListenerHelper extends RunnableListenerHelper {
    */
   public AsyncCallRunnableListenerHelper(boolean callListenersOnce, Executor executor) {
     super(callListenersOnce);
-    
-    if (executor == null) {
-      throw new IllegalArgumentException("Must provide executor");
-    }
+
+    ArgumentVerifier.assertNotNull(executor, "executor");
     
     this.executor = executor;
   }
