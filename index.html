@@ -27,13 +27,13 @@
           <li><a href="https://github.com/threadly/threadly/tarball/master">Download source <strong>TAR Ball</strong></a></li>
         </ul> -->
   <ul>
-  <li><a href="javadocs/2.3.0/index.html">Current stable <strong>Javadocs</strong></a></li>
+  <li><a href="javadocs/2.4.0/index.html">Current stable <strong>Javadocs</strong></a></li>
   <li><a href="https://github.com/threadly/threadly/wiki">View <strong>Wiki</strong></a></li>
   <li><a href="https://github.com/threadly/threadly">View On <strong>GitHub</strong></a></li>
   </ul>
 
   <p><h3>Latest stable binary: <br>
-  <a href="https://oss.sonatype.org/content/groups/staging/org/threadly/threadly/2.3.0/threadly-2.3.0.jar">threadly-2.3.0.jar</a></h3></p>
+  <a href="https://oss.sonatype.org/content/groups/staging/org/threadly/threadly/2.4.0/threadly-2.4.0.jar">threadly-2.4.0.jar</a></h3></p>
 
         <p><a href="https://threadly.ci.cloudbees.com/view/Threadly/job/threadly-master/"><img src="https://threadly.ci.cloudbees.com/job/threadly-master/badge/icon"></a></p>
       </header>
@@ -52,6 +52,7 @@
   <p>If you find this library useful, feel free to donate LTC/Litecoin to: LiTeCoinLRQrrP2B6xAq2aZ5WFHpHc28Ry</p>
   
   <p><h3>News:</h3>
+  <p>* August 5th - Version 2.4.0 has been released as the current stable version.  This version has modest changes, but we are continuing to try to release frequently when we have a stable branch.  These changes are focused around other ways to handle error handling within threadly (No longer forcing you to use the UncaughtExceptionHandler, ExceptionUtils now offers several ways to handle asynchronous exceptions).  The other change is a new Future type which can start execution on .get() request if execution has not already begun.  This can be useful for tasks which need a result ASAP (and allows better thread usage as a thread no longer will be just blocked waiting on the .get() call).  There are other small changes, which you should check the <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog</a> for details on.</p>
   <p>* July 21st - Released version 2.3.0.  It's obviously only been about 2 weeks since the last release.  I know we frequently have been on a one month cadence, but that was really just by chance.  In general I just want to release once the build is ready and stable.  If we can keep the releases small, low risk, and semi-frequent, that's even better.  This release has a few very small defect fixes (arguments in constructors accidentally being ignored in PrioritySchedulerStatisticTracker and TaskSchedulerDistributor).  As well as a single deprecation to fix the spelling error in renaming ThrowableSurpressingRunnable to the correctly spelled ThrowableSuppressingRunnable.  The most major change is the build system.  The gradle wrapper is now included so that gradle does not need to be separately installed, and we have updated the build scripts to gradle 2.0.  All in all, steady progression in the project.</p>
   <p>* July 8th - Released version 2.2.0.  In this version we made improvements to our utilities for dealing with event driven, callback/listener based designs.  We ended up moving/renaming ListenerHelper to the new "event" package (the old one will still exist till 3.0.0).  Since we were already deprecating stuff for the event driven improvements, we decided to go ahead and rename the PriorityScheduledExecutor into the shorter named PriorityScheduler.  Again, it will continue to exist under the old name until the 3.0.0 release.  As always, please check the <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog</a> for a complete and detailed list for changes/improvements.</p>
   <p>* June 9th - Released version 2.1.0, this follows the patch release of 2.0.1.  We released version 2.0.1 to fix a bug found in NoThreadScheduler and SingleThreadScheduler where recurring tasks may be executed ahead of .execute or .submit tasks submitted while the task was running.  2.1.0 is mostly more bug fixes.  It does include some new features, most prominently is the improved shutdown logic around SingleThreadScheduler, which now has the ability to "shutdownNow".  In addition we improved some platform specific string formatting for the "Profiler", "DebugLogger" and "ExceptionUtils".  We want to continue to release frequently (once we know the code is stable and safe enough to do so), so I invite you to look at <a href="https://github.com/threadly/threadly/wiki/Changelog">changelog on the wiki</a> for more details.</p>
