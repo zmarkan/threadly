@@ -14,8 +14,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
 import org.threadly.concurrent.future.ListenableFuture;
-import org.threadly.concurrent.future.ListenableFutureTask;
-import org.threadly.concurrent.future.ListenableRunnableFuture;
 import org.threadly.concurrent.future.ListenableScheduledFuture;
 import org.threadly.util.ArgumentVerifier;
 import org.threadly.util.Clock;
@@ -93,6 +91,7 @@ abstract class AbstractExecutorServiceWrapper implements ScheduledExecutorServic
     long startTime = Clock.accurateTimeMillis();
     long timeoutInMs = unit.toMillis(timeout);
     List<Future<T>> resultList = new ArrayList<Future<T>>(tasks.size());
+    // execute all the tasks provided
     {
       Iterator<? extends Callable<T>> it = tasks.iterator();
       while (it.hasNext()) {
@@ -101,25 +100,27 @@ abstract class AbstractExecutorServiceWrapper implements ScheduledExecutorServic
           throw new NullPointerException();
         }
         
-        ListenableRunnableFuture<T> fr = new ListenableFutureTask<T>(false, c);
-        resultList.add(fr);
-        scheduler.execute(fr);
+        ListenableFuture<T> lf = scheduler.submit(c);
+        resultList.add(lf);
       }
     }
+    // block till all tasks finish, or we reach our timeout
     {
       Iterator<Future<T>> it = resultList.iterator();
-      long remainingTime = Math.max(0, timeoutInMs - (Clock.accurateTimeMillis() - startTime)); 
+      long remainingTime = timeoutInMs - (Clock.accurateTimeMillis() - startTime); 
       while (it.hasNext() && remainingTime > 0) {
+        Future<T> f = it.next();
         try {
-          it.next().get(remainingTime, TimeUnit.MILLISECONDS);
+          f.get(remainingTime, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
           // ignored here
         } catch (TimeoutException e) {
+          f.cancel(true);
           break;
         }
-        remainingTime = Math.max(0, timeoutInMs - (Clock.accurateTimeMillis() - startTime)); 
+        remainingTime = timeoutInMs - (Clock.accurateTimeMillis() - startTime); 
       }
-      // cancel any which have not completed yet
+      // cancel any which have not completed yet (assuming they are not done)
       while (it.hasNext()) {
         it.next().cancel(true);
       }
